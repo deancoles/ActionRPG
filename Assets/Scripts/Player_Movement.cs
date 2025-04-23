@@ -4,7 +4,7 @@ using UnityEditor.Tilemaps;
 using UnityEngine;
 
 // This script controls player movement, sprite flipping, and animation
-public class PlayerMovement : MonoBehaviour
+public class Player_Movement : MonoBehaviour
 {
     public float speed = 5;         // Speed at which the player moves (public makes this editable in the Inspector)
     public int facingDirection = 1; // 1 for right, -1 for left
