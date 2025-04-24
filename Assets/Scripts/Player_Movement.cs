@@ -6,11 +6,11 @@ using UnityEngine;
 // This script controls player movement, sprite flipping, and animation
 public class Player_Movement : MonoBehaviour
 {
-    public float speed = 5;         // Speed at which the player moves (public makes this editable in the Inspector)
-    public int facingDirection = 1; // 1 for right, -1 for left
+    public float speed = 5;                                         // Speed at which the player moves (public makes this editable in the Inspector)
+    public int facingDirection = 1;                                 // 1 for right, -1 for left
 
-    public Rigidbody2D rb;          // Reference to the player's Rigidbody2D component
-    public Animator anim;           // Reference to the Animator for controlling animations
+    public Rigidbody2D rb;                                          // Reference to the player's Rigidbody2D component
+    public Animator anim;                                           // Reference to the Animator for controlling animations
 
 
 

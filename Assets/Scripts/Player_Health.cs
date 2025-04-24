@@ -7,11 +7,11 @@ using UnityEngine;
 public class Player_Health : MonoBehaviour
 {
 
-    public int currentHealth;           // Player's current health value
-    public int maxHealth;               // Player's maximum health value
+    public int currentHealth;                                           // Player's current health value
+    public int maxHealth;                                               // Player's maximum health value
 
-    public TMP_Text healthText;         // The on-screen health display text
-    public Animator healthTextAnim;     // Animator used to play a feedback animation when health text updates
+    public TMP_Text healthText;                                         // The on-screen health display text
+    public Animator healthTextAnim;                                     // Animator used to play a feedback animation when health text updates
 
     
     // Sets the initial health text display upon beginning
@@ -24,8 +24,8 @@ public class Player_Health : MonoBehaviour
     // Adjusts the player's health by a given amount.
     public void ChangeHealth(int amount)
     {
-        currentHealth += amount;            // Apply the health change (positive to heal, negative to damage).
-        healthTextAnim.Play("TextUpdate");  // Play feedback animation to indicate health has changed.
+        currentHealth += amount;                                        // Apply the health change (positive to heal, negative to damage).
+        healthTextAnim.Play("TextUpdate");                              // Play feedback animation to indicate health has changed.
 
         healthText.text = "HP: " + currentHealth + " / " + maxHealth; 
 

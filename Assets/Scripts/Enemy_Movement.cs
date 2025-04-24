@@ -8,11 +8,20 @@ using UnityEngine.XR;
 public class Enemy_Movement : MonoBehaviour
 {
     public float speed;                 // How fast the enemy moves.
+    public float attackRange = 2;       // How close player has to get before enemy attacks
+    public float attackCooldown = 2;    // The time after an attack before a new one can take place
+    public float playerDetectRange = 5; // The distance within which enemy will see player
+    public Transform detectionPoint;    // Centre point of enemy circle of sight
+    public LayerMask playerLayer;       // Only detects players
+
+    private float attackCooldownTimer;  // Tracks how much cooldown remains before next attack.
     private int facingDirection = -1;   // The direction the enemy is facing, -1 is left, 1 is right.
     private EnemyState enemyState;      // Tracks current state of enemy for animations.
+    
     private Rigidbody2D rb;             // Enemy's Rigidbody for movement.    
     private Transform player;           // Reference to the player’s position.
     private Animator anim;              // Reference to the Animator component.
+
 
 
     void Start()
@@ -22,19 +31,39 @@ public class Enemy_Movement : MonoBehaviour
         ChangeState(EnemyState.Idle);
     }
 
-    // Handles chasing the player or returning to start.
+    
     void Update()
     {
+        CheckForPlayer();
+
+        // Reduce cooldown timer
+        if (attackCooldownTimer > 0)
+        {
+            attackCooldownTimer -= Time.deltaTime;
+        }
+
         if (enemyState == EnemyState.Chasing)
         {
-            // if player is on the right but enemy is facing left or player is on the left but enemy is facing right
-            if (player.position.x > transform.position.x && facingDirection == -1 || player.position.x < transform.position.x && facingDirection == 1)
-            { 
-                    Flip();
-            }
-            Vector2 direction = (player.position - transform.position).normalized;          // Move towards the player's position.
-            rb.velocity = direction * speed;
-        } 
+            Chase();
+        }
+        // Stay still while attacking
+        else if (enemyState == EnemyState.Attacking)
+        {
+            rb.velocity = Vector2.zero;
+        }
+    }
+
+    // Chase the player
+    void Chase()
+    {
+        // if player is on the right but enemy is facing left or player is on the left but enemy is facing right
+        if (player.position.x > transform.position.x && facingDirection == -1 || player.position.x < transform.position.x && facingDirection == 1)
+        {
+            Flip();
+        }
+
+        Vector2 direction = (player.position - transform.position).normalized;          // Move towards the player's position.
+        rb.velocity = direction * speed;
     }
 
     // Flip the enemy sprite
@@ -45,29 +74,35 @@ public class Enemy_Movement : MonoBehaviour
     }
 
 
-    // Triggered when the player enters the enemy's detection range.
-    private void OnTriggerEnter2D(Collider2D collision)
+    // Checks for player in range and decides whether to chase or attack.
+    private void CheckForPlayer()
     {
-        if (collision.gameObject.tag == "Player")
+        Collider2D[] hits = Physics2D.OverlapCircleAll(detectionPoint.position, playerDetectRange, playerLayer);
+
+        if (hits.Length > 0)
         {
-            if (player == null)
+            player = hits[0].transform;
+
+            // Attack if within range and not on cooldown
+            if (Vector2.Distance(transform.position, player.position) <= attackRange && attackCooldownTimer <= 0)
             {
-                player = collision.transform;
+                attackCooldownTimer = attackCooldown;       // Reset the cooldown
+                ChangeState(EnemyState.Attacking);
             }
-            ChangeState(EnemyState.Chasing);        // Start chasing the player.
+            // Chase the player
+            else if (Vector2.Distance(transform.position, player.position) > attackRange)
+            {
+                ChangeState(EnemyState.Chasing);
+            }
         }
-    }
-
-    // Triggered when the player leaves the enemy's detection range.
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.gameObject.tag == "Player")
+        else
         {
-            rb.velocity = Vector2.zero;             // Stop movement immediately.
-            ChangeState(EnemyState.Idle);           // Return to idle state.
+            rb.velocity = Vector2.zero;                    // Stop movement immediately.
+            ChangeState(EnemyState.Idle);
         }
     }
 
+    // Handles transitions between Idle, Chasing, and Attacking animations.
     void ChangeState(EnemyState newstate)
     {
         // Exit the current animation
@@ -75,14 +110,25 @@ public class Enemy_Movement : MonoBehaviour
             anim.SetBool("isIdle", false);
         else if (enemyState == EnemyState.Chasing)
             anim.SetBool("isChasing", false);
+        else if (enemyState == EnemyState.Attacking)
+            anim.SetBool("isAttacking", false);
 
-        enemyState = newstate;      // Update our current state
+        enemyState = newstate;                            // Update our current state
 
         // Update the new animation
         if (enemyState == EnemyState.Idle)
             anim.SetBool("isIdle", true);
         else if (enemyState == EnemyState.Chasing)
             anim.SetBool("isChasing", true);
+        else if (enemyState == EnemyState.Attacking)
+            anim.SetBool("isAttacking", true);
+    }
+
+    // Draw a red circle indicating the enemy sight in scene view
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(detectionPoint.position, playerDetectRange);
     }
 }
 
@@ -91,4 +137,5 @@ public enum EnemyState
 {
     Idle,
     Chasing,
+    Attacking,
 }
