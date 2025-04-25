@@ -57,4 +57,11 @@ public class Game_Manager : MonoBehaviour
     {
         winUI.SetActive(true);             // Show the win message
     }
+
+    // Delays win message
+    IEnumerator WinMessageDelay()
+    {
+        yield return new WaitForSeconds(2f); // Wait for 2 seconds
+        winUI.SetActive(true);               // Then show the win message
+    }
 }
