@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Tilemaps;
 using UnityEngine;
 
 // Controls enemy movement: chases the player while in range, returns to start when not chasing.

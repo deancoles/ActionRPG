@@ -114,7 +114,7 @@ public class TilemapRecentreTool : EditorWindow
         if (applyPrefabChanges)
         {
             PrefabInstanceStatus prefabStatus = PrefabUtility.GetPrefabInstanceStatus(selected);
-            if (prefabStatus == PrefabInstanceStatus.Connected || prefabStatus == PrefabInstanceStatus.Disconnected)
+            if (prefabStatus == PrefabInstanceStatus.Connected)
             {
                 GameObject prefabRoot = PrefabUtility.GetNearestPrefabInstanceRoot(selected);
                 PrefabUtility.ApplyPrefabInstance(prefabRoot, InteractionMode.UserAction);
