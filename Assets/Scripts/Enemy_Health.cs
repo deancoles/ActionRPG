@@ -7,11 +7,12 @@ public class Enemy_Health : MonoBehaviour
 {
     public int currentHealth;                                           // The current health value of the enemy.
     public int maxHealth;                                               // The maximum health the enemy can have.
-
+    private Game_Manager gameManager;                                   // Reference to the GameManager
 
     private void Start()
     {
         currentHealth = maxHealth;                                      // Set current health to maximum at the start.
+        gameManager = FindObjectOfType<Game_Manager>();                 // Find the GameManager in the scene
     }
 
     public void ChangeHealth(int amount)
@@ -27,7 +28,8 @@ public class Enemy_Health : MonoBehaviour
         // If health reaches zero or less, destroy the GameObject.
         else if (currentHealth <= 0)
         {
-            Destroy(gameObject);        
+            gameManager.EnemyDefeated();                                // Tell GameManager we defeated an enemy
+            Destroy(gameObject);                                        // Destroy the enemy
         }
     }
 }
