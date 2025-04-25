@@ -12,13 +12,24 @@ public class Player_Movement : MonoBehaviour
     public Rigidbody2D rb;                                          // Reference to the player's Rigidbody2D component
     public Animator anim;                                           // Reference to the Animator for controlling animations
 
-    private bool isKnockedBack;                                     
+    private bool isKnockedBack;                                     // Tracks if the player is currently being knocked back.
+    public Player_Combat player_Combat;                             // Reference to the Player_Combat script controlling attacks.
 
 
-    // Update is called 50 times per second
+    // Handles player input for attacks.
+    private void Update()
+    {
+        // If the slash button is pressed, attempt an attack.
+        if (Input.GetButtonDown("Slash"))
+        {
+            player_Combat.Attack();
+        }
+
+    }
+
     void FixedUpdate()
     {
-        // If player is not knocked back from a hit
+        // Handle normal movement if player is not stunned.
         if (isKnockedBack == false)
         {
             // Get player input on the horizontal (A/D or Left/Right) and vertical (W/S or Up/Down) axes
@@ -47,14 +58,16 @@ public class Player_Movement : MonoBehaviour
         transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
     }
 
+    // Handles knockback when the player is hit by an enemy.
     public void Knockback(Transform enemy, float force, float stunTime)
     {
         isKnockedBack = true;
-        Vector2 direction = (transform.position - enemy.position).normalized;
-        rb.velocity = direction * force;
-        StartCoroutine(KnockbackCounter(stunTime));
+        Vector2 direction = (transform.position - enemy.position).normalized;   // Calculate knockback direction.
+        rb.velocity = direction * force;                                        // Apply knockback force.
+        StartCoroutine(KnockbackCounter(stunTime));                             // Begin a short stun period where the player can't move.
     }
 
+    // Waits for stun time to expire before regaining control.
     IEnumerator KnockbackCounter(float stunTime)
     {
         yield return new WaitForSeconds(stunTime);

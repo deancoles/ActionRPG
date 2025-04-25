@@ -7,17 +7,16 @@ using UnityEngine;
 public class Player_Health : MonoBehaviour
 {
 
-    public int currentHealth;                                           // Player's current health value
-    public int maxHealth;                                               // Player's maximum health value
+    public int currentHealth;                                           // Player's current health value.
+    public int maxHealth;                                               // Player's maximum health value.
+    public TMP_Text healthText;                                         // UI element used to display health.
+    public Animator healthTextAnim;                                     // Animator for visual health feedback.
 
-    public TMP_Text healthText;                                         // The on-screen health display text
-    public Animator healthTextAnim;                                     // Animator used to play a feedback animation when health text updates
 
-    
-    // Sets the initial health text display upon beginning
+    // Initializes the health display when the game starts.
     private void Start()
     {
-        healthText.text = "HP: " + currentHealth + " / " + maxHealth;   // Refresh the on-screen health text to reflect the new health value.
+        healthText.text = "HP: " + currentHealth + " / " + maxHealth;   
     }
 
     

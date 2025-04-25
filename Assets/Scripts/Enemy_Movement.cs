@@ -2,26 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Tilemaps;
 using UnityEngine;
-using UnityEngine.XR;
 
 // Controls enemy movement: chases the player while in range, returns to start when not chasing.
 public class Enemy_Movement : MonoBehaviour
 {
-    public float speed;                 // How fast the enemy moves.
-    public float attackRange = 2;       // How close player has to get before enemy attacks
-    public float attackCooldown = 2;    // The time after an attack before a new one can take place
-    public float playerDetectRange = 5; // The distance within which enemy will see player
-    public Transform detectionPoint;    // Centre point of enemy circle of sight
-    public LayerMask playerLayer;       // Only detects players
+    public float speed;                 // Movement speed of the enemy.
+    public float attackRange = 2;       // How close the player needs to be for an attack to trigger.
+    public float attackCooldown = 2;    // Time delay between consecutive enemy attacks.
+    private float attackCooldownTimer;  // Tracks how much time remains until next attack.
 
-    private float attackCooldownTimer;  // Tracks how much cooldown remains before next attack.
-    private int facingDirection = -1;   // The direction the enemy is facing, -1 is left, 1 is right.
+    public float playerDetectRange = 5; // Radius used to detect the player's presence.
+    public Transform detectionPoint;    // Origin point of detection circle.
+    public LayerMask playerLayer;       // Only detects objects on the player layer.
+    private int facingDirection = -1;   // The direction the enemy is facing, -1 is left, 1 is right. 
     private EnemyState enemyState;      // Tracks current state of enemy for animations.
-    
     private Rigidbody2D rb;             // Enemy's Rigidbody for movement.    
     private Transform player;           // Reference to the player’s position.
     private Animator anim;              // Reference to the Animator component.
-
 
 
     void Start()
@@ -31,25 +28,29 @@ public class Enemy_Movement : MonoBehaviour
         ChangeState(EnemyState.Idle);
     }
 
-    
+    // Detect player and handle enemy behaviour based on current state.
     void Update()
     {
-        CheckForPlayer();
+        // Only allow normal behaviour if not knocked back.
+        if ((enemyState != EnemyState.Knockback))
+        {
+            CheckForPlayer();
 
-        // Reduce cooldown timer
-        if (attackCooldownTimer > 0)
-        {
-            attackCooldownTimer -= Time.deltaTime;
-        }
+            // Reduce cooldown timer
+            if (attackCooldownTimer > 0)
+            {
+                attackCooldownTimer -= Time.deltaTime;      // Countdown attack cooldown.
+            }
 
-        if (enemyState == EnemyState.Chasing)
-        {
-            Chase();
-        }
-        // Stay still while attacking
-        else if (enemyState == EnemyState.Attacking)
-        {
-            rb.velocity = Vector2.zero;
+            if (enemyState == EnemyState.Chasing)
+            {
+                Chase();                                    // Move towards player.
+            }
+            // Stay still while attacking
+            else if (enemyState == EnemyState.Attacking)
+            {
+                rb.velocity = Vector2.zero;                 // Stop moving while attacking.
+            }
         }
     }
 
@@ -74,7 +75,7 @@ public class Enemy_Movement : MonoBehaviour
     }
 
 
-    // Checks for player in range and decides whether to chase or attack.
+    // Detects player within sight range and switches between chase or attack.
     private void CheckForPlayer()
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(detectionPoint.position, playerDetectRange, playerLayer);
@@ -103,7 +104,7 @@ public class Enemy_Movement : MonoBehaviour
     }
 
     // Handles transitions between Idle, Chasing, and Attacking animations.
-    void ChangeState(EnemyState newstate)
+    public void ChangeState(EnemyState newstate)
     {
         // Exit the current animation
         if (enemyState == EnemyState.Idle)
@@ -138,4 +139,5 @@ public enum EnemyState
     Idle,
     Chasing,
     Attacking,
+    Knockback,
 }

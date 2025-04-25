@@ -4538,6 +4538,37 @@ TilemapCollider2D:
   m_Offset: {x: 0, y: 0}
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0
+--- !u!1 &682506885
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 682506886}
+  m_Layer: 8
+  m_Name: AttackPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &682506886
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 682506885}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.511, y: -0.097, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2066224517}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &842935868
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5119,7 +5150,9 @@ GameObject:
   - component: {fileID: 1453184468}
   - component: {fileID: 1453184466}
   - component: {fileID: 1453184465}
-  m_Layer: 0
+  - component: {fileID: 1453184469}
+  - component: {fileID: 1453184470}
+  m_Layer: 9
   m_Name: Goblin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5266,7 +5299,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 3
   attackRange: 1.2
-  attackCooldown: 1
+  attackCooldown: 1.2
   playerDetectRange: 4
   detectionPoint: {fileID: 1346236267}
   playerLayer:
@@ -5309,6 +5342,32 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1453184469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1453184460}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af5215f5e6db59349a6d4be64a805db1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentHealth: 0
+  maxHealth: 3
+--- !u!114 &1453184470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1453184460}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4f214a8f6b06ba41ac51db76129c00c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1513101334
 GameObject:
   m_ObjectHideFlags: 0
@@ -68572,6 +68631,7 @@ GameObject:
   - component: {fileID: 2066224519}
   - component: {fileID: 2066224518}
   - component: {fileID: 2066224520}
+  - component: {fileID: 2066224521}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -68679,7 +68739,8 @@ Transform:
   m_LocalPosition: {x: -5.13, y: 0.5797748, z: 0.06006018}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 682506886}
   m_Father: {fileID: 1996927286}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -68699,6 +68760,7 @@ MonoBehaviour:
   facingDirection: 1
   rb: {fileID: 2066224514}
   anim: {fileID: 2066224519}
+  player_Combat: {fileID: 2066224521}
 --- !u!95 &2066224519
 Animator:
   serializedVersion: 5
@@ -68736,6 +68798,28 @@ MonoBehaviour:
   maxHealth: 20
   healthText: {fileID: 1405061961}
   healthTextAnim: {fileID: 1405061963}
+--- !u!114 &2066224521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2066224513}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52682bae709c64a4e8db6ae667c22b87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackPoint: {fileID: 682506886}
+  weaponRange: 0.7
+  knockbackForce: 20
+  stunTime: 0.2
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 512
+  damage: 1
+  anim: {fileID: 2066224519}
+  cooldown: 0.3
 --- !u!1 &2145122733
 GameObject:
   m_ObjectHideFlags: 0
