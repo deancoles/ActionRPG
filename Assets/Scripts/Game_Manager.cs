@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement; 
 
 public class Game_Manager : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class Game_Manager : MonoBehaviour
     public GameObject winUI;                                                // UI object for the win message
     private CanvasGroup winCanvasGroup;                                     // CanvasGroup to control fade
     private Player_Movement playerMovement;                                 // Reference to the player's movement script
+    public GameObject winOptionsHolder;
+    public GameObject inGameEnemySelectPanel;
 
 
     void Start()
@@ -79,6 +82,10 @@ public class Game_Manager : MonoBehaviour
     // Handles winning the game
     void WinGame()
     {
+        playerMovement.rb.velocity = Vector2.zero;                      // Stop player movement physics
+        playerMovement.anim.SetFloat("horizontal", 0f);                 // Force horizontal to 0
+        playerMovement.anim.SetFloat("vertical", 0f);                   // Force vertical to 0
+        playerMovement.enabled = false;                                 // Freeze player controls
         StartCoroutine(WinMessageFadeIn());
     }
 
@@ -96,6 +103,50 @@ public class Game_Manager : MonoBehaviour
         }
 
         winCanvasGroup.alpha = 1;                                       // Ensure fully visible at end
-        playerMovement.enabled = false;                                 // Disable player control after winning
+        winOptionsHolder.SetActive(true);                               // Activate the buttons after fade-in
+    }
+
+    public void ReturnToMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");                             // Returns to Main Menu level
+    }
+
+    public void RestartLevel()
+    {
+        winOptionsHolder.SetActive(false);                              // Hide the win menu
+        inGameEnemySelectPanel.SetActive(true);                         // Show enemy choice
+    }
+
+    public void ChooseEnemiesDuringGame(int amount)
+    {
+        enemySpawns = amount;
+        ClearExistingEnemies();
+        SpawnEnemies();
+        UpdateEnemiesText();
+        winUI.SetActive(true);                                          // Re-enable WinUI
+        winCanvasGroup.alpha = 0f;                                      // Hide the Win Message text again                                      
+        inGameEnemySelectPanel.SetActive(false);                        // Hide the panel again
+        playerMovement.ResetToStart();                                  // Move player back to start
+        StartCoroutine(EnablePlayerMovementDelayed());                  // Wait before allowing movement
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();                                             // Quit Games
+        Debug.Log("Quit Game");                                         // Used for testing purposes in Unity editor
+    }
+
+    void ClearExistingEnemies()
+    {
+        foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy"))
+        {
+            Destroy(enemy);
+        }
+    }
+
+    private IEnumerator EnablePlayerMovementDelayed()
+    {
+        yield return new WaitForSeconds(0.5f);                          // Wait 0.5 seconds
+        playerMovement.enabled = true;                                  // Then allow player to move
     }
 }

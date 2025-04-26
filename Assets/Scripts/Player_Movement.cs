@@ -5,6 +5,7 @@ using UnityEngine;
 // This script controls player movement, sprite flipping, and animation
 public class Player_Movement : MonoBehaviour
 {
+    private Vector2 startingPosition;                               // Player starting posiiton on the map
     public float speed = 5;                                         // Speed at which the player moves (public makes this editable in the Inspector)
     public int facingDirection = 1;                                 // 1 for right, -1 for left
 
@@ -14,6 +15,20 @@ public class Player_Movement : MonoBehaviour
     private bool isKnockedBack;                                     // Tracks if the player is currently being knocked back.
     public Player_Combat player_Combat;                             // Reference to the Player_Combat script controlling attacks.
 
+    
+    // Save where player starts
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();                           // Rigidbody grab
+        anim = GetComponent<Animator>();                            // Animator grab
+        startingPosition = transform.position;                                         
+    }
+
+    // Reset player posiiton back to start
+    public void ResetToStart()
+    {
+        transform.position = startingPosition;
+    }
 
     // Handles player input for attacks.
     private void Update()
