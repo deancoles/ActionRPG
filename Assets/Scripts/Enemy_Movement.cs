@@ -5,138 +5,146 @@ using UnityEngine;
 // Controls enemy movement: chases the player while in range, returns to start when not chasing.
 public class Enemy_Movement : MonoBehaviour
 {
-    public float speed;                 // Movement speed of the enemy.
-    public float attackRange = 2;       // How close the player needs to be for an attack to trigger.
-    public float attackCooldown = 2;    // Time delay between consecutive enemy attacks.
-    private float attackCooldownTimer;  // Tracks how much time remains until next attack.
-
-    public float playerDetectRange = 5; // Radius used to detect the player's presence.
-    public Transform detectionPoint;    // Origin point of detection circle.
-    public LayerMask playerLayer;       // Only detects objects on the player layer.
-    private int facingDirection = -1;   // The direction the enemy is facing, -1 is left, 1 is right. 
-    private EnemyState enemyState;      // Tracks current state of enemy for animations.
-    private Rigidbody2D rb;             // Enemy's Rigidbody for movement.    
-    private Transform player;           // Reference to the player’s position.
-    private Animator anim;              // Reference to the Animator component.
+    public float speed;                     // Movement speed of the enemy.
+    public float attackRange = 2;           // How close the player needs to be for an attack to trigger.
+    public float attackCooldown = 2;        // Time delay between consecutive enemy attacks.
+    private float attackCooldownTimer;      // Tracks how much time remains until next attack.
+    public float playerDetectRange = 5;     // Radius used to detect the player's presence.
+    public Transform detectionPoint;        // Origin point of detection circle.
+    public LayerMask playerLayer;           // Only detects objects on the player layer.
+    private int facingDirection = -1;       // The direction the enemy is facing, -1 is left, 1 is right. 
+    private EnemyState enemyState;          // Tracks current state of enemy for animations.
+    private Rigidbody2D rb;                 // Enemy's Rigidbody for movement.    
+    private Transform player;               // Reference to the player’s position.
+    private Animator anim;                  // Reference to the Animator component.
 
 
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        anim = GetComponent<Animator>();
-        ChangeState(EnemyState.Idle);
+        rb = GetComponent<Rigidbody2D>();   // Get reference to Rigidbody2D.
+        anim = GetComponent<Animator>();    // Get reference to Animator.
+        ChangeState(EnemyState.Idle);       // Start enemy in idle state.
     }
+
 
     // Detect player and handle enemy behaviour based on current state.
     void Update()
     {
-        // Only allow normal behaviour if not knocked back.
+        // Only act if not being knocked back.
         if ((enemyState != EnemyState.Knockback))
         {
-            CheckForPlayer();
+            CheckForPlayer();                               // Look for player nearby.                              
 
-            // Reduce cooldown timer
+            // If attack cooldown is active
             if (attackCooldownTimer > 0)
             {
-                attackCooldownTimer -= Time.deltaTime;      // Countdown attack cooldown.
+                attackCooldownTimer -= Time.deltaTime;      // Countdown timer.
             }
 
+            // If chasing, move towards player.
             if (enemyState == EnemyState.Chasing)
             {
-                Chase();                                    // Move towards player.
+                Chase();                                    
             }
-            // Stay still while attacking
+
+            // If attacking, stop moving.
             else if (enemyState == EnemyState.Attacking)
             {
-                rb.velocity = Vector2.zero;                 // Stop moving while attacking.
+                rb.velocity = Vector2.zero;                 // Freeze movement while attacking.
             }
         }
     }
 
-    // Chase the player
+
+    // Move enemy towards the player.
     void Chase()
     {
-        // if player is on the right but enemy is facing left or player is on the left but enemy is facing right
+        // Check if enemy needs to flip based on player's position.
         if (player.position.x > transform.position.x && facingDirection == -1 || player.position.x < transform.position.x && facingDirection == 1)
         {
             Flip();
         }
 
-        Vector2 direction = (player.position - transform.position).normalized;          // Move towards the player's position.
-        rb.velocity = direction * speed;
+        Vector2 direction = (player.position - transform.position).normalized;      // Move towards the player's position.
+        rb.velocity = direction * speed;                                            // Set velocity to move towards player.
     }
 
-    // Flip the enemy sprite
+
+    // Flip the enemy sprite.
     void Flip()
     {
-        facingDirection *= -1;
-        transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
+        facingDirection *= -1;  
+        transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);    // Mirror the sprite.
     }
 
 
-    // Detects player within sight range and switches between chase or attack.
+    // Checks for nearby player and updates enemy state.
     private void CheckForPlayer()
     {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(detectionPoint.position, playerDetectRange, playerLayer);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(detectionPoint.position, playerDetectRange, playerLayer);            // Detect all players in range.
 
+        // If a player was detected
         if (hits.Length > 0)
         {
-            player = hits[0].transform;
+            player = hits[0].transform;                 // Target the first player detected.
 
-            // Attack if within range and not on cooldown
+            
             if (Vector2.Distance(transform.position, player.position) <= attackRange && attackCooldownTimer <= 0)
             {
-                attackCooldownTimer = attackCooldown;       // Reset the cooldown
-                ChangeState(EnemyState.Attacking);
+                attackCooldownTimer = attackCooldown;   // Reset attack cooldown.
+                ChangeState(EnemyState.Attacking);      // Switch to attacking state.
             }
-            // Chase the player
+            
             else if (Vector2.Distance(transform.position, player.position) > attackRange && enemyState != EnemyState.Attacking)
             {
-                ChangeState(EnemyState.Chasing);
+                ChangeState(EnemyState.Chasing);        // Continue chasing if out of attack range.
             }
         }
+
         else
         {
-            rb.velocity = Vector2.zero;                    // Stop movement immediately.
-            ChangeState(EnemyState.Idle);
+            rb.velocity = Vector2.zero;         // Stop moving.
+            ChangeState(EnemyState.Idle);       // Switch to idle state.
         }
     }
 
-    // Handles transitions between Idle, Chasing, and Attacking animations.
+
+    // Changes the enemy's current state and updates animations.
     public void ChangeState(EnemyState newstate)
     {
-        // Exit the current animation
+        // Turn off the current state's animation
         if (enemyState == EnemyState.Idle)
-            anim.SetBool("isIdle", false);
+            anim.SetBool("isIdle", false);              // Exit idle animation.
         else if (enemyState == EnemyState.Chasing)
-            anim.SetBool("isChasing", false);
+            anim.SetBool("isChasing", false);           // Exit chasing animation.
         else if (enemyState == EnemyState.Attacking)
-            anim.SetBool("isAttacking", false);
+            anim.SetBool("isAttacking", false);         // Exit attacking animation.
 
-        enemyState = newstate;                            // Update our current state
+        enemyState = newstate;                          // Update our current state
 
-        // Update the new animation
+        // Enable the new state's animation
         if (enemyState == EnemyState.Idle)
-            anim.SetBool("isIdle", true);
+            anim.SetBool("isIdle", true);               // Enter idle animation.
         else if (enemyState == EnemyState.Chasing)
-            anim.SetBool("isChasing", true);
+            anim.SetBool("isChasing", true);            // Enter chasing animation.
         else if (enemyState == EnemyState.Attacking)
-            anim.SetBool("isAttacking", true);
+            anim.SetBool("isAttacking", true);          // Enter attacking animation.
     }
 
-    // Draw a red circle indicating the enemy sight in scene view
+
+    // Draws a red circle in the editor to show detection range.
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(detectionPoint.position, playerDetectRange);
+        Gizmos.color = Color.red;                                           // Set gizmo colour to red.
+        Gizmos.DrawWireSphere(detectionPoint.position, playerDetectRange);  // Draw detection circle.
     }
 }
 
-// List of states the enemy can be in.
+// List of possible enemy states.
 public enum EnemyState
 {
-    Idle,
-    Chasing,
-    Attacking,
-    Knockback,
+    Idle,           // Standing still.
+    Chasing,        // Moving towards player.
+    Attacking,      // Currently attacking player.
+    Knockback,      // Being knocked backwards by player attack.
 }

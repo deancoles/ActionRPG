@@ -18,7 +18,7 @@ public class Enemy_Combat : MonoBehaviour
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.position, weaponRange, playerLayer); // Check for any player colliders within the attack radius.
 
-        // If at least one player is found
+        // If at least one player is hit
         if (hits.Length > 0)
         {
             hits[0].GetComponent<Player_Health>().ChangeHealth(-damage);                                // Damage the player.
