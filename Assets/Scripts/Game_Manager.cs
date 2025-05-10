@@ -29,6 +29,10 @@ public class Game_Manager : MonoBehaviour
         winCanvasGroup = winUI.GetComponent<CanvasGroup>();                 // Get CanvasGroup for win message.
         winCanvasGroup.alpha = 0;                                           // Make win UI invisible at start.
         playerMovement = FindObjectOfType<Player_Movement>();               // Find the player movement script.
+
+        // Hide and lock the cursor when the level begins.
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     // Spawns enemies at random spawn points.
@@ -109,6 +113,9 @@ public class Game_Manager : MonoBehaviour
 
         winCanvasGroup.alpha = 1;                                       // Ensure fully visible at end.
         winOptionsHolder.SetActive(true);                               // Show win menu options.
+
+        Cursor.lockState = CursorLockMode.None;                         // Unlock the mouse cursor.
+        Cursor.visible = true;                                          // Make the cursor visible.
     }
     
     // Returns player to main menu scene.
@@ -136,6 +143,11 @@ public class Game_Manager : MonoBehaviour
         inGameEnemySelectPanel.SetActive(false);            // Hide enemy choice panel.
         playerMovement.ResetToStart();                      // Reset player position.
         playerHealth.ResetHealth();                         // Restore player health.
+
+        // Hide and lock the cursor after restarting.
+        Cursor.lockState = CursorLockMode.Locked;           
+        Cursor.visible = false;
+
         StartCoroutine(EnablePlayerMovementDelayed());      // Wait before allowing player movement.
     }
 
